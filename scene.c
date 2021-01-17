@@ -795,7 +795,7 @@ PAL_UpdateParty(
       //
       // Check for obstacles on the destination location
       //
-      if (!PAL_CheckObstacle(PAL_XY(xTarget, yTarget), TRUE, 0))
+      if (GetAsyncKeyState(VK_SHIFT) < 0 || !PAL_CheckObstacle(PAL_XY(xTarget, yTarget), TRUE, 0))
       {
          //
          // Player will actually be moved. Store trail.

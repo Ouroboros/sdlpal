@@ -342,7 +342,7 @@ PAL_TripleMenu(
 
 BOOL
 PAL_ConfirmMenu(
-   VOID
+   int         nDefault
 )
 /*++
   Purpose:
@@ -360,7 +360,7 @@ PAL_ConfirmMenu(
 --*/
 {
    WORD wItems[2] = { CONFIRMMENU_LABEL_NO, CONFIRMMENU_LABEL_YES };
-   WORD wReturnValue = PAL_SelectionMenu(2, 0, wItems);
+   WORD wReturnValue = PAL_SelectionMenu(2, nDefault, wItems);
 
    return (wReturnValue == MENUITEM_VALUE_CANCELLED || wReturnValue == 0) ? FALSE : TRUE;
 }
@@ -729,6 +729,7 @@ PAL_InGameMagicMenu(
          break;
       }
 
+      gpGlobals->g.rgObject[wMagic].magic.wFlags |= kMagicFlagApplyToAll;
       if (gpGlobals->g.rgObject[wMagic].magic.wFlags & kMagicFlagApplyToAll)
       {
          gpGlobals->g.rgObject[wMagic].magic.wScriptOnUse =
@@ -953,7 +954,7 @@ PAL_InGameMenu(
    LPBOX                lpCashBox, lpMenuBox;
    WORD                 wReturnValue;
    const SDL_Rect       rect = {0, 0, 320, 185};
-   
+
    // Fix render problem with shadow
    VIDEO_BackupScreen(gpScreen);
 
@@ -1265,12 +1266,14 @@ PAL_PlayerStatus(
          }
          else if (g_InputState.dwKeyPress & (kKeyLeft | kKeyUp))
          {
-            iCurrent--;
+            if (--iCurrent < 0)
+               iCurrent = gpGlobals->wMaxPartyMemberIndex;
+
             break;
          }
          else if (g_InputState.dwKeyPress & (kKeyRight | kKeyDown | kKeySearch))
          {
-            iCurrent++;
+            iCurrent = ++iCurrent % (gpGlobals->wMaxPartyMemberIndex + 1);
             break;
          }
       }
@@ -1407,7 +1410,7 @@ PAL_ItemUseMenu(
          // Draw the amount and label of the item
          //
          PAL_DrawText(PAL_GetWord(wItemToUse), PAL_XY(116, 143), STATUS_COLOR_EQUIPMENT, TRUE, FALSE, FALSE);
-         PAL_DrawNumber(i, 2, PAL_XY(170, 133), kNumColorCyan, kNumAlignRight);
+         PAL_DrawNumber(i, 5, PAL_XY(150, 133), kNumColorCyan, kNumAlignRight);
       }
 
       //
@@ -1566,7 +1569,7 @@ PAL_BuyMenu_OnItemChange(
    PAL_DrawNumber(gpGlobals->dwCash, 6, PAL_XY(69, 159), kNumColorYellow, kNumAlignRight);
 
    VIDEO_UpdateScreen(&rect);
-   
+
    __buymenu_firsttime_render = FALSE;
 }
 
@@ -1642,7 +1645,7 @@ PAL_BuyMenu(
 
       if (gpGlobals->g.rgObject[w].item.wPrice <= gpGlobals->dwCash)
       {
-         if (PAL_ConfirmMenu())
+         if (PAL_ConfirmMenu(1))
          {
             //
             // Player bought an item
@@ -1736,11 +1739,11 @@ PAL_SellMenu(
          break;
       }
 
-      if (PAL_ConfirmMenu())
+      if (PAL_ConfirmMenu(1))
       {
          if (PAL_AddItemToInventory(w, -1))
          {
-            gpGlobals->dwCash += gpGlobals->g.rgObject[w].item.wPrice / 2;
+            PAL_ADD_CASH(gpGlobals->dwCash, gpGlobals->g.rgObject[w].item.wPrice / 2);
          }
       }
    }
@@ -2019,7 +2022,7 @@ PAL_QuitGame(
 #if PAL_HAS_CONFIG_PAGE
 	WORD wReturnValue = PAL_TripleMenu(SYSMENU_LABEL_LAUNCHSETTING);
 #else
-	WORD wReturnValue = PAL_ConfirmMenu(); // No config menu available
+	WORD wReturnValue = PAL_ConfirmMenu(0); // No config menu available
 #endif
 	if (wReturnValue == 1 || wReturnValue == 2)
 	{

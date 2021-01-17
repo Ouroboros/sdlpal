@@ -66,13 +66,13 @@ static const int g_KeyMap[][2] = {
    { SDLK_KP_6,      kKeyRight },
    { SDLK_ESCAPE,    kKeyMenu },
    { SDLK_INSERT,    kKeyMenu },
-   { SDLK_LALT,      kKeyMenu },
-   { SDLK_RALT,      kKeyMenu },
+   // { SDLK_LALT,      kKeyMenu },
+   // { SDLK_RALT,      kKeyMenu },
    { SDLK_KP_0,      kKeyMenu },
    { SDLK_RETURN,    kKeySearch },
    { SDLK_SPACE,     kKeySearch },
    { SDLK_KP_ENTER,  kKeySearch },
-   { SDLK_LCTRL,     kKeySearch },
+   // { SDLK_LCTRL,     kKeySearch },
    { SDLK_PAGEUP,    kKeyPgUp },
    { SDLK_KP_9,      kKeyPgUp },
    { SDLK_PAGEDOWN,  kKeyPgDn },
@@ -81,6 +81,7 @@ static const int g_KeyMap[][2] = {
    { SDLK_KP_7,      kKeyHome },
    { SDLK_END,       kKeyEnd },
    { SDLK_KP_1,      kKeyEnd },
+   { SDLK_DELETE,    kKeyAuto },
    { SDLK_r,         kKeyRepeat },
    { SDLK_a,         kKeyAuto },
    { SDLK_d,         kKeyDefend },
@@ -352,7 +353,7 @@ PAL_MouseEventFilter(
 --*/
 {
 #if PAL_HAS_MOUSE
-   static short hitTest = 0; // Double click detect;   
+   static short hitTest = 0; // Double click detect;
    const SDL_VideoInfo *vi;
 
    double       screenWidth, gridWidth;
@@ -383,7 +384,7 @@ PAL_MouseEventFilter(
    thumbx = ceil(mx / gridWidth);
    thumby = floor(my / gridHeight);
    gridIndex = thumbx + thumby * 3 - 1;
-   
+
    switch (lpEvent->type)
    {
    case SDL_MOUSEBUTTONDOWN:
@@ -415,7 +416,7 @@ PAL_MouseEventFilter(
          break;
       case 7:
         //g_InputState.prevdir = g_InputState.dir;
-        //g_InputState.dir = kDirSouth; 
+        //g_InputState.dir = kDirSouth;
          g_InputState.dwKeyPress |= kKeyDown;
          break;
       case 3:
@@ -448,16 +449,16 @@ PAL_MouseEventFilter(
            if((betweenTime < 100) && (hitTest >= 2))
            {
               isLeftMouseClick = TRUE;
-                hitTest = 0;  
+                hitTest = 0;
            }
            else
-           {  
+           {
               isLeftMouseClick = TRUE;
               if(betweenTime > 100)
               {
                  hitTest = 0;
               }
-              
+
            }
         }
       }
@@ -513,7 +514,7 @@ PAL_MouseEventFilter(
       {
          g_InputState.dwKeyPress |= kKeySearch;
       }
-      
+
         break;
       }
       break;
@@ -657,17 +658,17 @@ VOID
 )
 /*++
  Purpose:
- 
+
  Poll & update joystick state.
- 
+
  Parameters:
- 
+
  None.
- 
+
  Return value:
- 
+
  None.
- 
+
  --*/
 {
    if( g_InputState.axisX == 1 && g_InputState.axisY >= 0 )
@@ -803,7 +804,7 @@ PAL_GetTouchArea(
          }
       }
    }
-   else 
+   else
    {
       return TOUCH_NONE;
    }
@@ -1239,7 +1240,7 @@ PAL_RegisterInputFilter(
   Parameters:
 
     [IN] init_filter - Filter that will be called inside PAL_InitInput
-	[IN] event_filter - Filter that will be called inside PAL_PollEvent, 
+	[IN] event_filter - Filter that will be called inside PAL_PollEvent,
 	                    return non-zero value from this filter disables
 						further internal event processing.
 	[IN] shutdown_filter - Filter that will be called inside PAL_ShutdownInput

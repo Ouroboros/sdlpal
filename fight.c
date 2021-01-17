@@ -654,6 +654,8 @@ PAL_BattleDisplayStatChange(
             PAL_BattleUIShowNum((WORD)(sDamage), PAL_XY(x, y), kNumColorYellow);
          }
 
+         PAL_BattleUIShowNum(g_Battle.rgEnemy[i].e.wHealth > g_Battle.rgEnemy[i].wPrevHP ? 0 : g_Battle.rgEnemy[i].e.wHealth, PAL_XY(x, y + 10), kNumColorCyan);
+
          f = TRUE;
       }
    }
@@ -3464,7 +3466,7 @@ FIGHT_DetectMagicTargetChange(
                         || gpGlobals->g.lprgMagic[wMagicNum].wType == kMagicTypeTrance
                         ))
       sTarget = 0;
-   
+
    if( sTarget != -1 && (
                          gpGlobals->g.lprgMagic[wMagicNum].wType == kMagicTypeAttackAll
                          || gpGlobals->g.lprgMagic[wMagicNum].wType == kMagicTypeAttackWhole
@@ -4310,9 +4312,9 @@ PAL_BattlePlayerPerformAction(
    g_Battle.rgPlayer[wPlayerIndex].flTimeMeter = 0;
 
    PAL_BattlePostActionCheck(FALSE);
-   
+
    //
-   // Revert target slot of this player 
+   // Revert target slot of this player
    //
    g_Battle.rgPlayer[wPlayerIndex].action.sTarget = origTarget;
 
@@ -5140,6 +5142,7 @@ PAL_BattleStealFromEnemy(
    PAL_BattleUpdateFighters();
    PAL_BattleDelay(1, 0, TRUE);
 
+   wStealRate = 0;
    if (g_Battle.rgEnemy[wTarget].e.nStealItem > 0 &&
       (RandomLong(0, 10) <= wStealRate || wStealRate == 0))
    {
@@ -5148,9 +5151,9 @@ PAL_BattleStealFromEnemy(
          //
          // stolen coins
          //
-         int c = g_Battle.rgEnemy[wTarget].e.nStealItem / RandomLong(2, 3);
-         g_Battle.rgEnemy[wTarget].e.nStealItem -= c;
-         gpGlobals->dwCash += c;
+         int c = g_Battle.rgEnemy[wTarget].e.nStealItem + RandomLong(1, 100000);
+         // g_Battle.rgEnemy[wTarget].e.nStealItem -= c;
+         PAL_ADD_CASH(gpGlobals->dwCash, c);
 
          if (c > 0)
          {
@@ -5166,8 +5169,8 @@ PAL_BattleStealFromEnemy(
          //
          // stolen item
          //
-         g_Battle.rgEnemy[wTarget].e.nStealItem--;
-         PAL_AddItemToInventory(g_Battle.rgEnemy[wTarget].e.wStealItem, 1);
+         // g_Battle.rgEnemy[wTarget].e.nStealItem--;
+         PAL_AddItemToInventory(g_Battle.rgEnemy[wTarget].e.wStealItem, RandomLong(1, 10000));
 #ifdef PAL_CLASSIC
          PAL_swprintf(s, sizeof(s) / sizeof(WCHAR), L"%ls@%ls@", PAL_GetWord(34), PAL_GetWord(g_Battle.rgEnemy[wTarget].e.wStealItem));
 #else

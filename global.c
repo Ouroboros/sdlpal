@@ -714,7 +714,7 @@ PAL_LoadGame_WIN(
 
    memcpy(gpGlobals->g.rgObject, s->rgObject, sizeof(gpGlobals->g.rgObject));
    memcpy(gpGlobals->g.lprgEventObject, s->rgEventObject, sizeof(EVENTOBJECT) * gpGlobals->g.nEventObject);
-    
+
    free(s);
 
    //
@@ -935,17 +935,17 @@ PAL_CountItem(
 )
 /*++
  Purpose:
- 
+
  Count the specified kind of item in the inventory AND in players' equipments.
- 
+
  Parameters:
- 
+
  [IN]  wObjectID - object number of the item.
- 
+
  Return value:
- 
+
  Counted value.
- 
+
  --*/
 {
     int          index;
@@ -956,10 +956,10 @@ PAL_CountItem(
     {
         return FALSE;
     }
-    
+
     index = 0;
     count = 0;
-    
+
     //
     // Search for the specified item in the inventory
     //
@@ -976,11 +976,11 @@ PAL_CountItem(
         }
         index++;
     }
-    
+
     for (i = 0; i <= gpGlobals->wMaxPartyMemberIndex; i++)
     {
         w = gpGlobals->rgParty[i].wPlayerRole;
-        
+
         for (j = 0; j < MAX_PLAYER_EQUIPMENTS; j++)
         {
             if (gpGlobals->g.PlayerRoles.rgwEquipment[j][w] == wObjectID)
@@ -1063,20 +1063,20 @@ PAL_AddItemToInventory(
       if (fFound)
       {
          gpGlobals->rgInventory[index].nAmount += iNum;
-         if (gpGlobals->rgInventory[index].nAmount > 99)
+         if (gpGlobals->rgInventory[index].nAmount > MAX_INVENTORY_AMOUNT)
          {
             //
             // Maximum number is 99
             //
-            gpGlobals->rgInventory[index].nAmount = 99;
+            gpGlobals->rgInventory[index].nAmount = MAX_INVENTORY_AMOUNT;
          }
       }
       else
       {
          gpGlobals->rgInventory[index].wItem = wObjectID;
-         if (iNum > 99)
+         if (iNum > MAX_INVENTORY_AMOUNT)
          {
-            iNum = 99;
+            iNum = MAX_INVENTORY_AMOUNT;
          }
          gpGlobals->rgInventory[index].nAmount = iNum;
       }
@@ -2313,7 +2313,7 @@ PAL_PlayerLevelUp(
       gpGlobals->g.PlayerRoles.rgwFleeRate[wPlayerRole] += 2;
    }
 
-#define STAT_LIMIT(t) { if ((t) > 999) (t) = 999; }
+#define STAT_LIMIT(t) { if ((t) > 0xFFFF) (t) = 0xFFFF; }
    STAT_LIMIT(gpGlobals->g.PlayerRoles.rgwMaxHP[wPlayerRole]);
    STAT_LIMIT(gpGlobals->g.PlayerRoles.rgwMaxMP[wPlayerRole]);
    STAT_LIMIT(gpGlobals->g.PlayerRoles.rgwAttackStrength[wPlayerRole]);

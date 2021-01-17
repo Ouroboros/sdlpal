@@ -1330,6 +1330,8 @@ PAL_BattleUIUpdate(
                   }
                   else
                   {
+                     gpGlobals->g.rgObject[w].magic.wFlags |= kMagicFlagApplyToAll;
+                     gpGlobals->g.lprgMagic[gpGlobals->g.rgObject[w].magic.wMagicNumber].wType = kMagicTypeApplyToParty;
                      if (gpGlobals->g.rgObject[w].magic.wFlags & kMagicFlagApplyToAll)
                      {
                         g_Battle.UI.state = kBattleUISelectTargetPlayerAll;

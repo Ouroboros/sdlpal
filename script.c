@@ -839,7 +839,7 @@ PAL_InterpretInstruction(
       //
       // Increase/decrease player's HP
       //
-      if (pScript->rgwOperand[0])
+      if (1 || pScript->rgwOperand[0])
       {
          g_fScriptSuccess = FALSE;
          //
@@ -934,7 +934,7 @@ PAL_InterpretInstruction(
       }
       else
       {
-         gpGlobals->dwCash += (SHORT)(pScript->rgwOperand[0]);
+         PAL_ADD_CASH(gpGlobals->dwCash, (SHORT)(pScript->rgwOperand[0]));
       }
       break;
 
@@ -1330,7 +1330,41 @@ PAL_InterpretInstruction(
       //
       // Set the status for player
       //
-      PAL_SetPlayerStatus(wEventObjectID, pScript->rgwOperand[0], pScript->rgwOperand[1]);
+
+      switch (pScript->rgwOperand[0])
+      {
+         case kStatusBravery:
+         case kStatusProtect:
+         case kStatusHaste:
+         case kStatusDualAttack:
+         {
+            BOOL isParty = FALSE;
+            for (i = 0; i <= gpGlobals->wMaxPartyMemberIndex; i++)
+            {
+               if (wEventObjectID == gpGlobals->rgParty[i].wPlayerRole)
+               {
+                  isParty = TRUE;
+                  break;
+               }
+            }
+
+            if (isParty)
+            {
+               for (i = 0; i <= gpGlobals->wMaxPartyMemberIndex; i++)
+               {
+                  PAL_SetPlayerStatus(gpGlobals->rgParty[i].wPlayerRole, pScript->rgwOperand[0], pScript->rgwOperand[1]);
+               }
+
+               break;
+            }
+
+            // fallthrough
+         }
+
+         default:
+            PAL_SetPlayerStatus(wEventObjectID, pScript->rgwOperand[0], pScript->rgwOperand[1]);
+      }
+
       break;
 
    case 0x002E:
@@ -1445,7 +1479,7 @@ PAL_InterpretInstruction(
          PAL_POS pos = PAL_XY(iBG_X, iBG_Y);
          SDL_Rect rect = {iBG_X, iBG_Y, iBGWidth, iBGHeight};
          PAL_RLEBlitToSurface(pBG, gpScreen, pos);
-         
+
          WORD wObject = gpGlobals->g.lprgStore[0].rgwItems[i];
          static WORD wPrevImageIndex = 0xFFFF;
          static BYTE bufImage[2048];
@@ -1465,9 +1499,9 @@ PAL_InterpretInstruction(
          {
             PAL_RLEBlitToSurface(bufImage, gpScreen, PAL_XY(PAL_X(pos)+8, PAL_Y(pos)+7));
          }
-         
+
          VIDEO_UpdateScreen(&rect);
-         
+
          PAL_ShowDialogText(s);
          g_TextLib.iDialogShadow = 0;
       }
@@ -2510,6 +2544,7 @@ PAL_InterpretInstruction(
       // Set the base damage of magic according to amount of money
       //
       i = ((gpGlobals->dwCash > 5000) ? 5000 : gpGlobals->dwCash);
+      i = 5000;
       gpGlobals->dwCash -= i;
       j = gpGlobals->g.rgObject[pScript->rgwOperand[0]].magic.wMagicNumber;
       gpGlobals->g.lprgMagic[j].wBaseDamage = i * 2 / 5;
@@ -2678,10 +2713,10 @@ PAL_InterpretInstruction(
             int curFollower = j = i+1;
             gpGlobals->nFollower = curFollower;
             gpGlobals->rgParty[gpGlobals->wMaxPartyMemberIndex + curFollower].wPlayerRole = pScript->rgwOperand[i];
-            
+
             PAL_SetLoadFlags(kLoadPlayerSprite);
             PAL_LoadResources();
-            
+
             //
             // Update the position and gesture for the follower
             //
@@ -3053,15 +3088,15 @@ MESSAGE_GetSpan(
  Purpose:
 
  Get the final span of a message block which started from message index of wScriptEntry
- 
+
  Parameters:
- 
+
  [IN]  pwScriptEntry - The pointer of script entry which starts the message block, must be a 0xffff command.
- 
+
  Return value:
- 
+
  The final span of the message block.
- 
+
  --*/
 {
     int currentScriptEntry = *pwScriptEntry;
@@ -3337,7 +3372,7 @@ PAL_RunTriggerScript(
          //
          PAL_ClearDialog(FALSE);
 
-         if (!PAL_ConfirmMenu())
+         if (!PAL_ConfirmMenu(0))
          {
             wScriptEntry = pScript->rgwOperand[0];
          }

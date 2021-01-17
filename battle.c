@@ -236,7 +236,7 @@ PAL_BattleFadeScene(
    DWORD             time;
    BYTE              a, b;
    const int         rgIndex[6] = {0, 3, 1, 5, 2, 4};
-   
+
    time = SDL_GetTicks();
 
    for (i = 0; i < 12; i++)
@@ -310,7 +310,7 @@ PAL_BattleMain(
 {
    int         i;
    DWORD       dwTime;
-   
+
    VIDEO_BackupScreen(gpScreen);
 
    //
@@ -659,9 +659,9 @@ PAL_BattleWon(
    //
    // Add the cash value
    //
-   gpGlobals->dwCash += g_Battle.iCashGained;
+   PAL_ADD_CASH(gpGlobals->dwCash, g_Battle.iCashGained);
 
-    
+
     const MENUITEM      rgFakeMenuItem[] =
     {
         // value  label                        enabled   pos

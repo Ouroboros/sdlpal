@@ -50,7 +50,7 @@ PAL_TripleMenu(
 
 BOOL
 PAL_ConfirmMenu(
-   VOID
+   int         nDefault
 );
 
 BOOL
